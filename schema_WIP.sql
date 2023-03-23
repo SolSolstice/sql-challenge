@@ -36,7 +36,6 @@ create table dept_manager(
 
 );
 
-
 create table dept_emp(
 	emp_no INT, 
 	dept_no VARCHAR(10),
@@ -62,7 +61,9 @@ COPY dept_emp FROM 'C:\Users\Matthew\OneDrive\Desktop\Bootcamp\Bootcamp Work\09 
 COPY salaries FROM 'C:\Users\Matthew\OneDrive\Desktop\Bootcamp\Bootcamp Work\09 - SQL Unit\Module 09 Challenge - Due 03-28-2023\sql-challenge\data\salaries.csv' WITH CSV HEADER;
 
 --  Create view
-CREATE VIEW all_info AS 
+
+	
+CREATE VIEW bulk_info AS 
 SELECT 
 	titles.title_id,
 	titles.title, 
@@ -74,7 +75,8 @@ SELECT
 	employees.sex,
 	employees.hire_date,
 	dept_emp.dept_no,
-	salaries.salary
+	salaries.salary,
+	dept_name
 FROM 
 	titles 
 INNER JOIN employees
@@ -82,10 +84,82 @@ INNER JOIN employees
 INNER JOIN dept_emp
 	ON dept_emp.emp_no = employees.emp_no
 INNER JOIN salaries 
-	ON salaries.emp_no = employees.emp_no;
-	
+	ON salaries.emp_no = employees.emp_no
+INNER JOIN departments
+	ON departments.dept_no = dept_emp.dept_no
+;	
+
 -- Question 1 
-select emp_no, last_name, first_name, sex, hire_date, salary from all_info;
+select emp_no, last_name, first_name, sex, salary from bulk_info
+ORDER BY 
+emp_no;
 
 -- Question 2 
+select first_name, last_name, hire_date from bulk_info
+WHERE 
+hire_date between '1986-01-01' and '1986-12-31';
+
+-- Question 3 
 select 
+	d.dept_no,
+	dpt.dept_name,
+	e.emp_no,
+	e.last_name,
+	e.first_name
+FROM 
+dept_manager d
+INNER JOIN departments dpt
+ON d.dept_no = dpt.dept_no
+INNER JOIN employees e 
+ON d.emp_no = e.emp_no 
+;
+
+-- Question 4 
+select 
+	de.dept_no, 
+	de.emp_no, 
+	e.last_name,
+	e.first_name,
+	d.dept_name
+FROM dept_emp de
+LEFT JOIN employees e
+ON de.emp_no = e.emp_no
+LEFT JOIN departments d
+ON d.dept_no = de.dept_no;
+
+--Question 5 
+
+select 
+	first_name,
+	last_name,
+	sex
+FROM employees
+WHERE first_Name = 'Hercules' AND last_name like 'B%'
+ORDER BY last_name;
+
+--Question 6
+
+select 
+	emp_no,
+	last_name,
+	first_name
+from all_info
+WHERE dept_no = 'd007';
+
+-- Question 7
+
+
+select 
+	emp_no,
+	last_name,
+	first_name,
+	dept_name
+FROM bulk_info
+WHERE dept_no = 'd007' OR dept_no = 'd005';
+
+-- Question 8 
+select last_name, 
+count(last_name)
+FROM employees
+GROUP BY last_name
+ORDER BY count(last_name) DESC;
